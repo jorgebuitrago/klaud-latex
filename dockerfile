@@ -1,20 +1,16 @@
-FROM blang/latex:ctanbasic
+FROM blang/latex:ubuntu
 
-LABEL maintainer="your@email.com"
-LABEL description="Custom LaTeX image based on blang/latex:ctanbasic with extra packages"
+# Install Python 3 and AWS CLI
+RUN apt-get update && \
+    apt-get install -y python3-pip && \
+    pip3 install awscli && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Update package list and install required LaTeX packages
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    texlive-latex-extra \
-    texlive-fonts-recommended \
-    texlive-fonts-extra \
-    texlive-lang-english \
-    texlive-bibtex-extra \
-    texlive-science \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+# Create a working directory
+WORKDIR /var/task
 
-# Set working directory
-WORKDIR /data
+# Copy handler script
+COPY app.py .
 
-# Default command
-CMD ["pdflatex"]
+# Define the Lambda handler
+CMD ["app.lambda_handler"]
